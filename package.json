@@ -1,0 +1,41 @@
+{
+  "name": "dsh-search",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness (DSH) 插件：接入 Exa 搜索 + 设置「搜索服务」页（图形界面选择搜索商、填写钥匙，符合 Apple HIG）。零 DSH 内部依赖，直接调用 Exa 官方 REST API。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepack": "npm run build",
+    "test": "node tests/run-all.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ]
+    }
+  },
+  "dependencies": {
+    "yaml": "^2.4.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "license": "MIT",
+  "author": "songoao25"
+}

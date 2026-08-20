@@ -2,11 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [0.2.1] - 2026-08-20
+
+### Changed
+
+- Renamed the package, plugin, and project from `dsh-search` to `dsh-song-search`.
+- Renamed the GitHub repository to `songoao25/dsh-song-search`.
+
 ## [0.2.0] - 2026-08-20
 
 ### Added
 
-- Added the `dsh-search` plugin identity.
+- Added the `dsh-song-search` plugin identity.
 - Added the Search Service settings page.
 - Added Exa/DeepSeek provider selection.
 - Added secure API-key entry, masking, validation, cancel, and save feedback.
@@ -14,7 +21,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Renamed the plugin from `dsh-exa-search` to `dsh-search`.
+- Renamed the plugin from `dsh-exa-search` to `dsh-song-search`.
 - Search configuration is managed from the DSH settings page.
 
 ### Security

@@ -1,4 +1,4 @@
-// dsh-search — 测试入口：静态安全断言 + 纯函数断言（零真实网络、零真实钥匙）
+// dsh-song-search — 测试入口：静态安全断言 + 纯函数断言（零真实网络、零真实钥匙）
 // 覆盖：搜索结果映射、钥匙解析、搜索配置读写（临时文件）、安全静态检查
 import { readFileSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -41,14 +41,14 @@ check('resolveApiKey config 优先', resolveApiKey({ apiKey: 'sk-config' }), 'sk
 check('resolveApiKey 无 key → null', resolveApiKey({}), null)
 
 // ---- 搜索配置读写（临时文件，不碰真实配置）----
-const tmpDir = mkdtempSync(join(tmpdir(), 'dsh-search-test-'))
+const tmpDir = mkdtempSync(join(tmpdir(), 'dsh-song-search-test-'))
 const patchFile = join(tmpDir, 'cordis.patch.yml')
 writeFileSync(patchFile, [
   '# test patch',
   '- id: web',
   '  config:',
   '    searchProvider: exa',
-  '- id: dsh-search',
+  '- id: dsh-song-search',
   '  config:',
   "    apiKey: 'test-key-1234567890'",
   '',
@@ -81,7 +81,7 @@ check('provider id = exa', src.includes("EXA_PROVIDER_ID = 'exa'"), true)
 check('调用 Exa 官方端点', src.includes("'https://api.exa.ai'"), true)
 check('钥匙来自 config 或 EXA_API_KEY', src.includes('config.apiKey') && src.includes('EXA_API_KEY'), true)
 check('可用性检查钥匙存在', src.includes('available()') && src.includes('options.apiKey'), true)
-check('RPC 前缀正确', src.includes("ROUTE_PREFIX = '/_dsh/dsh-search'"), true)
+check('RPC 前缀正确', src.includes("ROUTE_PREFIX = '/_dsh/dsh-song-search'"), true)
 check('修改类 RPC 同源防护', src.includes('sameOrigin(req)') && src.includes('requires POST'), true)
 check('RPC 不返回完整钥匙', src.includes('exaKeyMasked') && src.includes('slice(0, 4)'), true)
 check('配置写入用 yaml 库', src.includes("from 'yaml'") && src.includes('stringify(doc)'), true)
@@ -90,6 +90,6 @@ check('客户端有搜索商下拉', clientSrc.includes('deepseek-official') && 
 check('客户端钥匙支持安全输入框', clientSrc.includes("isKeyVisible ? 'text' : 'password'"), true)
 check('客户端返回设置页 disposer，避免登记失效', /return function \(\) \{[\s\S]*if \(dispose\) dispose\(\);[\s\S]*if \(removeStyles\) removeStyles\(\);/.test(clientSrc), true)
 
-console.log(`dsh-search tests: ${pass} PASS / ${fail} FAIL`)
+console.log(`dsh-song-search tests: ${pass} PASS / ${fail} FAIL`)
 if (failures.length > 0) console.log(failures.join('\n'))
 process.exit(fail > 0 ? 1 : 0)

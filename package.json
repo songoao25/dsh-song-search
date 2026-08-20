@@ -1,6 +1,6 @@
 {
-  "name": "dsh-search",
-  "version": "0.2.0",
+  "name": "dsh-song-search",
+  "version": "0.2.1",
   "description": "DeepSeek Harness (DSH) 插件：接入 Exa 搜索 + 设置「搜索服务」页（图形界面选择搜索商、填写钥匙，符合 Apple HIG）。零 DSH 内部依赖，直接调用 Exa 官方 REST API。",
   "type": "module",
   "main": "lib/index.js",

@@ -1,7 +1,7 @@
-// dsh-search — host half（静态 bundle 形态）
+// dsh-song-search — host half（静态 bundle 形态）
 // 业务：
 //   1. 在 DSH 的 ctx.web 搜索接缝注册 Exa 搜索提供商（provider id = 'exa'）
-//   2. 提供 RPC（/_dsh/dsh-search/{getSearchConfig,setSearchConfig}），
+//   2. 提供 RPC（/_dsh/dsh-song-search/{getSearchConfig,setSearchConfig}），
 //      供设置「搜索服务」页读取/修改 profile 的 cordis.patch.yml（搜索商 + 钥匙）
 // 原则：
 //   1. 零 DSH 内部依赖——不 import 任何 @deepseek-ai 包，只用 Node 内置能力与通用 yaml 库，
@@ -18,8 +18,8 @@ const EXA_DEFAULT_BASE_URL = 'https://api.exa.ai'
 const EXA_PROVIDER_ID = 'exa'
 const EXA_DEFAULT_NUM_RESULTS = 5
 const EXA_SNIPPET_MAX_CHARS = 500
-const ROUTE_PREFIX = '/_dsh/dsh-search'
-const PATCH_ROW_ID = 'dsh-search'
+const ROUTE_PREFIX = '/_dsh/dsh-song-search'
+const PATCH_ROW_ID = 'dsh-song-search'
 const PROVIDER_LABELS = { exa: 'Exa', 'deepseek-official': 'DeepSeek' }
 
 // 纯函数：从 config 或环境变量解析钥匙（不打印、不记录、不落盘）
@@ -69,7 +69,7 @@ export function buildExaSearchProvider(resolveOptions) {
             'accept': 'application/json',
             'authorization': 'Bearer ' + options.apiKey,
             'x-api-key': options.apiKey,
-            'user-agent': 'dsh-search/0.2.0',
+            'user-agent': 'dsh-song-search/0.2.0',
           },
           body: JSON.stringify(body),
           ...(signal !== undefined ? { signal } : {}),
@@ -231,9 +231,9 @@ function apply(ctx, config) {
       })
       return function () { dispose(); }
     } catch (err) {
-      console.warn('[dsh-search] webServer 路由注册失败', String((err && err.message) || err))
+      console.warn('[dsh-song-search] webServer 路由注册失败', String((err && err.message) || err))
     }
-  }, 'dsh-search: RPC routes')
+  }, 'dsh-song-search: RPC routes')
 }
 
-export default { name: 'dsh-search', inject: ['web'], apply }
+export default { name: 'dsh-song-search', inject: ['web'], apply }

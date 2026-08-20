@@ -1,12 +1,12 @@
-# dsh-search
+# dsh-song-search
 
 [**English**](README.md) | [**中文**](README.zh-CN.md)
 
-[![许可证](https://img.shields.io/github/license/songoao25/dsh-search)](https://github.com/songoao25/dsh-search/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/songoao25/dsh-search)](https://github.com/songoao25/dsh-search/releases)
-[![CI](https://img.shields.io/github/actions/workflow/status/songoao25/dsh-search/ci.yml)](https://github.com/songoao25/dsh-search/actions)
+[![许可证](https://img.shields.io/github/license/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/songoao25/dsh-song-search/ci.yml)](https://github.com/songoao25/dsh-song-search/actions)
 
-`dsh-search` 是 DeepSeek Harness（DSH）的联网搜索插件：接入 Exa，并提供原生风格的「搜索服务」设置页。
+`dsh-song-search` 是 DeepSeek Harness（DSH）的联网搜索插件：接入 Exa，并提供原生风格的「搜索服务」设置页。
 
 ## 功能
 
@@ -19,8 +19,8 @@
 ## 安装
 
 ```bash
-git clone https://github.com/songoao25/dsh-search.git
-cd dsh-search
+git clone https://github.com/songoao25/dsh-song-search.git
+cd dsh-song-search
 npm run build
 dsh plugin --profile web add .
 ```

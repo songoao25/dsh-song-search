@@ -1,6 +1,6 @@
-# dsh-search bundle patch: mounts the plugin row into a profile layer stack.
-# The row id is 'dsh-search' — users may override its config (e.g. apiKey) in
+# dsh-song-search bundle patch: mounts the plugin row into a profile layer stack.
+# The row id is 'dsh-song-search' — users may override its config (e.g. apiKey) in
 # their profile's cordis.patch.yml with a row carrying the same id.
 - insert:
-    - id: dsh-search
-      name: 'dsh-search'
+    - id: dsh-song-search
+      name: 'dsh-song-search'

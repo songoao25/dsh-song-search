@@ -2,6 +2,9 @@ node_modules/
 .npm/
 .DS_Store
 *.log
+
+# Private product-development working materials; never publish to GitHub.
+.product-team/
 .env
 .env.*
 !.env.example

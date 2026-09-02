@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 
 const root = dirname(fileURLToPath(new URL('../package.json', import.meta.url)))
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+const retiredRuntime = ['@deepseek-ai', 'dsh-client-' + 'runtime'].join('/')
 const src = readFileSync(join(root, 'src', 'host.js'), 'utf8')
 const clientSrc = readFileSync(join(root, 'src', 'client-bundle.js'), 'utf8')
 
@@ -18,6 +20,11 @@ function check(name, actual, expected) {
     failures.push(`${name}: 期望 ${JSON.stringify(expected)} 实际 ${JSON.stringify(actual)}`)
   }
 }
+
+check('alpha.4 client inject removes retired runtime', pkg.dsh.client.inject.includes(retiredRuntime), false)
+check('alpha.4 client injects settings module', pkg.dsh.client.inject.includes('@deepseek-ai/dsh-client-ui-settings'), true)
+check('alpha.4 client injects general settings module', pkg.dsh.client.inject.includes('@deepseek-ai/dsh-client-ui-settings-general'), true)
+await import(join(root, 'tests', 'test-alpha4-client-contract.mjs'))
 
 // ---- 纯函数断言 ----
 const { mapExaResults, resolveApiKey, readSearchConfig, writeSearchConfig } = await import(join(root, 'lib', 'index.js'))

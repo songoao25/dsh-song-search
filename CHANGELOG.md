@@ -7,7 +7,7 @@ All notable changes to this project are documented here.
 ### Changed
 
 - Unified the package, plugin, and project name as `dsh-song-search`.
-- Renamed the GitHub repository to `songoao25/dsh-song-search`.
+- Renamed the GitHub repository to `SONGOAO25/dsh-song-search`.
 
 ## [0.2.0] - 2026-08-20
 

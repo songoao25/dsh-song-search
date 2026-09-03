@@ -2,11 +2,11 @@
 
 [**English**](README.md) | [**中文**](README.zh-CN.md)
 
-[![License](https://img.shields.io/github/license/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search/releases)
-[![CI](https://img.shields.io/github/actions/workflow/status/songoao25/dsh-song-search/ci.yml)](https://github.com/songoao25/dsh-song-search/actions)
-[![Last Commit](https://img.shields.io/github/last-commit/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search/commits/main)
-[![Stars](https://img.shields.io/github/stars/songoao25/dsh-song-search)](https://github.com/songoao25/dsh-song-search)
+[![License](https://img.shields.io/github/license/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/SONGOAO25/dsh-song-search/ci.yml)](https://github.com/SONGOAO25/dsh-song-search/actions)
+[![Last Commit](https://img.shields.io/github/last-commit/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search/commits/main)
+[![Stars](https://img.shields.io/github/stars/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search)
 
 A DeepSeek Harness (DSH) plugin that adds Exa web search and a native-style **搜索服务 / Search Service** settings page.
 
@@ -27,7 +27,7 @@ A DeepSeek Harness (DSH) plugin that adds Exa web search and a native-style **�
 ## Install
 
 ```bash
-git clone https://github.com/songoao25/dsh-song-search.git
+git clone https://github.com/SONGOAO25/dsh-song-search.git
 cd dsh-song-search
 npm run build
 dsh plugin --profile web add .
@@ -61,4 +61,4 @@ The test suite uses temporary fixtures and does not call Exa or require a real A
 
 ## License
 
-[MIT](LICENSE) © 2026 songoao25
+[MIT](LICENSE) © 2026 SONGOAO25

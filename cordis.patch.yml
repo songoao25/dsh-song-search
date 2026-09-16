@@ -1,7 +1,7 @@
 # dsh-song-search bundle patch: mounts the plugin row into a profile layer stack.
 # The row id is 'dsh-song-search' — users may override its config (e.g. apiKey or
-# apiKeys.brave/tavily/serper) in
-# their profile's cordis.patch.yml with a row carrying the same id.
+# apiKeys.brave/tavily/serper/perplexity/you and providerSettings) in their
+# profile's cordis.patch.yml with a row carrying the same id.
 - insert:
     - id: dsh-song-search
       name: 'dsh-song-search'

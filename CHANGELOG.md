@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here.
 
+## [0.4.0] - 2026-09-16
+
+### Added
+
+- Added Perplexity Search and You.com Search adapters for structured AI-oriented web results.
+- Added per-provider custom settings for API base URL, result count, country, language, freshness, domain filters, and provider-specific search modes.
+- Added environment-variable status support for all third-party providers while keeping values masked.
+
+### Changed
+
+- Search settings now supports seven choices: Perplexity Search, You.com Search, Tavily, Exa, Brave Search, Serper, and DeepSeek.
+- Provider settings are re-read from the profile so a saved change takes effect without restarting DSH.
+- Updated release workflow to the maintained `googleapis/release-please-action` package.
+
+### Security
+
+- Custom API bases accept HTTPS or loopback HTTP only; API keys remain isolated per provider and are never returned in full.
+
 ## [0.3.0] - 2026-09-16
 
 ### Added

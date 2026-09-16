@@ -1,6 +1,6 @@
 {
   "name": "dsh-song-search",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "DeepSeek Harness (DSH) 插件：接入主流网页/AI 搜索服务 + 设置「搜索服务」页（图形界面选择搜索商、填写钥匙和自定义搜索设置，符合 Apple HIG）。零 DSH 内部依赖，直接调用各服务商官方 REST API。",
   "type": "module",
   "main": "lib/index.js",

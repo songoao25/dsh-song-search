@@ -30,6 +30,8 @@ await import(join(root, 'tests', 'test-alpha4-client-contract.mjs'))
 // ---- 纯函数断言 ----
 const {
   mapExaResults,
+  mapPerplexityResults,
+  mapYouResults,
   mapBraveResults,
   mapTavilyResults,
   mapSerperResults,
@@ -53,6 +55,11 @@ check('mapExaResults 空结果', mapExaResults({}).sources.length, 0)
 check('mapExaResults 非法输入', mapExaResults(null).sources.length, 0)
 check('mapExaResults truncated 恒 false', mapped.truncated, false)
 
+const perplexityMapped = mapPerplexityResults({ results: [{ url: 'https://perplexity.example', title: 'Perplexity', snippet: 'AI 搜索摘要' }] })
+check('mapPerplexityResults 映射 results', perplexityMapped.sources[0].url === 'https://perplexity.example' && perplexityMapped.sources[0].snippet === 'AI 搜索摘要', true)
+const youMapped = mapYouResults({ results: { web: [{ url: 'https://you-web.example', title: 'You Web', description: '网页描述', snippets: ['网页片段'] }], news: [{ url: 'https://you-news.example', title: 'You News', description: '新闻描述' }] } }, 1)
+check('mapYouResults 合并 web/news 并限制数量', youMapped.sources.length === 1 && youMapped.sources[0].url === 'https://you-web.example' && youMapped.sources[0].snippet === '网页描述 网页片段', true)
+
 const braveMapped = mapBraveResults({ web: { results: [{ url: 'https://brave.example', title: 'Brave', description: '描述', extra_snippets: ['补充'] }] } })
 check('mapBraveResults 映射 web.results', braveMapped.sources[0].url === 'https://brave.example' && braveMapped.sources[0].snippet === '描述 补充', true)
 const tavilyMapped = mapTavilyResults({ results: [{ url: 'https://tavily.example', title: 'Tavily', content: '内容' }] })
@@ -74,20 +81,30 @@ globalThis.fetch = async function (url, options) {
     ? { web: { results: [{ url: 'https://brave.example', title: 'Brave', description: '结果' }] } }
     : String(url).includes('tavily')
       ? { results: [{ url: 'https://tavily.example', title: 'Tavily', content: '结果' }] }
-      : { organic: [{ link: 'https://serper.example', title: 'Serper', snippet: '结果' }] }
+      : String(url).includes('perplexity')
+        ? { results: [{ url: 'https://perplexity.example', title: 'Perplexity', snippet: '结果' }] }
+        : String(url).includes('ydc-index')
+          ? { results: { web: [{ url: 'https://you.example', title: 'You', description: '结果' }] } }
+          : { organic: [{ link: 'https://serper.example', title: 'Serper', snippet: '结果' }] }
   return { ok: true, status: 200, async json() { return body } }
 }
 try {
   const braveProvider = buildSearchProvider('brave', () => ({ apiKey: 'brave-test-key', baseURL: 'https://api.search.brave.com/res/v1' }))
   const tavilyProvider = buildSearchProvider('tavily', () => ({ apiKey: 'tavily-test-key', baseURL: 'https://api.tavily.com' }))
   const serperProvider = buildSearchProvider('serper', () => ({ apiKey: 'serper-test-key', baseURL: 'https://google.serper.dev' }))
+  const perplexityProvider = buildSearchProvider('perplexity', () => ({ apiKey: 'perplexity-test-key', baseURL: 'https://api.perplexity.ai', maxResults: 4, country: 'US', language: 'en', freshness: 'week', includeDomains: ['example.com'], searchType: 'web', searchContextSize: 'medium' }))
+  const youProvider = buildSearchProvider('you', () => ({ apiKey: 'you-test-key', baseURL: 'https://ydc-index.io', maxResults: 4, country: 'US', language: 'en-US', freshness: 'month', excludeDomains: ['example.com'], extractionMode: 'highlights', safeSearch: 'strict' }))
   check('Brave provider 可用性', braveProvider.available(), true)
   check('Brave provider 请求契约', (await braveProvider.search({ query: 'hello', maxResults: 3 })).sources[0].url === 'https://brave.example', true)
   check('Tavily provider 请求契约', (await tavilyProvider.search({ query: 'hello', maxResults: 3 })).sources[0].url === 'https://tavily.example', true)
   check('Serper provider 请求契约', (await serperProvider.search({ query: 'hello', maxResults: 3 })).sources[0].url === 'https://serper.example', true)
+  check('Perplexity provider 请求契约', (await perplexityProvider.search({ query: 'hello' })).sources[0].url === 'https://perplexity.example', true)
+  check('You.com provider 请求契约', (await youProvider.search({ query: 'hello' })).sources[0].url === 'https://you.example', true)
   check('Brave 使用 GET 与专用 header', calls[0].options.method === 'GET' && calls[0].options.headers['x-subscription-token'] === 'brave-test-key' && !calls[0].url.includes('brave-test-key'), true)
   check('Tavily 使用 Bearer header', calls[1].options.method === 'POST' && calls[1].options.headers.authorization === 'Bearer tavily-test-key', true)
   check('Serper 使用 X-API-KEY header', calls[2].options.method === 'POST' && calls[2].options.headers['x-api-key'] === 'serper-test-key', true)
+  check('Perplexity 使用 Bearer header 与搜索设置', calls[3].options.method === 'POST' && calls[3].options.headers.authorization === 'Bearer perplexity-test-key' && JSON.parse(calls[3].options.body).search_recency_filter === 'week' && JSON.parse(calls[3].options.body).search_domain_filter[0] === 'example.com' && !calls[3].url.includes('perplexity-test-key'), true)
+  check('You.com 使用 X-API-Key 与 POST 搜索设置', calls[4].options.method === 'POST' && calls[4].options.headers['x-api-key'] === 'you-test-key' && JSON.parse(calls[4].options.body).extraction.extraction_mode === 'highlights' && JSON.parse(calls[4].options.body).exclude_domains[0] === 'example.com' && !calls[4].url.includes('you-test-key'), true)
 } finally {
   globalThis.fetch = originalFetch
 }
@@ -133,25 +150,53 @@ const savedDoc = parse(readFileSync(patchFile, 'utf8'))
 const savedProviderRow = savedDoc.find((r) => r && r.id === 'dsh-song-search')
 check('writeSearchConfig 按服务商分开保存钥匙', savedProviderRow.config.apiKeys.brave, 'brave-key-abcdefghij')
 
+const invalidSettings = writeSearchConfig(patchFile, { provider: 'perplexity', apiKey: 'perplexity-key-abcdefghij', settings: { baseURL: 'http://remote.example' } })
+check('writeSearchConfig 拒绝远程 HTTP 自定义基址', invalidSettings.ok, false)
+const w4 = writeSearchConfig(patchFile, {
+  provider: 'perplexity',
+  apiKey: 'perplexity-key-abcdefghij',
+  settings: {
+    baseURL: 'https://api.perplexity.ai',
+    maxResults: 7,
+    country: 'us',
+    language: 'en',
+    freshness: 'week',
+    includeDomains: 'example.com, example.org',
+    searchType: 'web',
+    searchContextSize: 'medium',
+  },
+})
+check('writeSearchConfig Perplexity 自定义设置 ok', w4.ok, true)
+const read4 = readSearchConfig(patchFile)
+check('writeSearchConfig 读取 Perplexity 设置', read4.settings.maxResults === 7 && read4.settings.country === 'US' && read4.settings.includeDomains.length === 2 && read4.settings.searchContextSize === 'medium', true)
+check('writeSearchConfig 保存 Perplexity 钥匙', read4.apiKeysByProvider.perplexity.set && read4.apiKeyMasked === 'perp****ghij', true)
+const invalidYouSettings = writeSearchConfig(patchFile, { provider: 'you', settings: { includeDomains: ['example.com'], excludeDomains: ['other.example'] } })
+check('writeSearchConfig 拒绝 You.com 冲突域名过滤', invalidYouSettings.ok, false)
+const localProxySettings = writeSearchConfig(patchFile, { provider: 'you', apiKey: 'you-key-abcdefghij', settings: { baseURL: 'http://127.0.0.1:8787', maxResults: 6 } })
+check('writeSearchConfig 允许本机 HTTP 代理基址', localProxySettings.ok, true)
+
 rmSync(tmpDir, { recursive: true, force: true })
 
 // ---- 静态安全断言 ----
 check('源码无 token 打印', /console\.(log|warn|error)[^;]*(apiKey|token|Bearer)/.test(src), false)
 check('源码无密钥字面量', /sk-[A-Za-z0-9]{16,}/.test(src), false)
 check('源码零 @deepseek-ai 依赖', src.includes('@deepseek-ai/'), false)
-check('注册 Exa/Brave/Tavily/Serper', ['exa', 'brave', 'tavily', 'serper'].every((id) => src.includes(id)), true)
+check('注册 Exa/Perplexity/You/Brave/Tavily/Serper', ['exa', 'perplexity', 'you', 'brave', 'tavily', 'serper'].every((id) => src.includes(id)), true)
 check('调用 Exa 官方端点', src.includes("https://api.exa.ai"), true)
+check('调用 Perplexity 官方端点', src.includes("https://api.perplexity.ai"), true)
+check('调用 You.com 官方端点', src.includes("https://ydc-index.io"), true)
 check('调用 Brave 官方端点', src.includes("https://api.search.brave.com/res/v1"), true)
 check('调用 Tavily 官方端点', src.includes("https://api.tavily.com"), true)
 check('调用 Serper 官方端点', src.includes("https://google.serper.dev"), true)
-check('钥匙来自配置或各服务商环境变量', src.includes('config.apiKey') && src.includes('EXA_API_KEY') && src.includes('BRAVE_SEARCH_API_KEY') && src.includes('TAVILY_API_KEY') && src.includes('SERPER_API_KEY'), true)
+check('钥匙来自配置或各服务商环境变量', src.includes('config.apiKey') && src.includes('EXA_API_KEY') && src.includes('PERPLEXITY_API_KEY') && src.includes('YDC_API_KEY') && src.includes('BRAVE_SEARCH_API_KEY') && src.includes('TAVILY_API_KEY') && src.includes('SERPER_API_KEY'), true)
 check('可用性检查钥匙存在', src.includes('available()') && src.includes('options.apiKey'), true)
 check('RPC 前缀正确', src.includes("ROUTE_PREFIX = '/_dsh/dsh-song-search'"), true)
 check('修改类 RPC 同源防护', src.includes('sameOrigin(req)') && src.includes('requires POST'), true)
 check('RPC 不返回完整钥匙', src.includes('exaKeyMasked') && src.includes('slice(0, 4)'), true)
 check('配置写入用 yaml 库', src.includes("from 'yaml'") && src.includes('stringify(doc)'), true)
 check('客户端设置页名为搜索服务', clientSrc.includes("'搜索服务'"), true)
-check('客户端有五个搜索商选项', ['deepseek-official', 'exa', 'brave', 'tavily', 'serper'].every((id) => clientSrc.includes("'" + id + "'")), true)
+check('客户端有七个搜索商选项', ['deepseek-official', 'exa', 'perplexity', 'you', 'brave', 'tavily', 'serper'].every((id) => clientSrc.includes("'" + id + "'")), true)
+check('客户端支持自定义设置', clientSrc.includes('dsh-search-base-url') && clientSrc.includes('dsh-search-max-results') && clientSrc.includes('dsh-search-country') && clientSrc.includes('dsh-search-language'), true)
 check('客户端钥匙支持安全输入框', clientSrc.includes("isKeyVisible ? 'text' : 'password'"), true)
 check('客户端返回设置页 disposer，避免登记失效', /return function \(\) \{[\s\S]*if \(dispose\) dispose\(\);[\s\S]*if \(removeStyles\) removeStyles\(\);/.test(clientSrc), true)
 

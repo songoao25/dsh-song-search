@@ -8,13 +8,13 @@
 [![Last Commit](https://img.shields.io/github/last-commit/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search/commits/main)
 [![Stars](https://img.shields.io/github/stars/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search)
 
-A DeepSeek Harness (DSH) plugin that adds Exa web search and a native-style **搜索服务 / Search Service** settings page.
+A DeepSeek Harness (DSH) plugin that adds third-party web search providers and a native-style **搜索服务 / Search Service** settings page.
 
 ## Features
 
-- Exa provider for DSH web search (`provider id: exa`).
-- Settings page to choose Exa or DeepSeek search.
-- Secure API-key field with masked status, cancel, save, validation, and keyboard-friendly form behavior.
+- Exa, Brave Search, Tavily, and Serper providers for DSH web search.
+- Settings page to choose a third-party provider or the existing DeepSeek search.
+- Separate secure API-key storage for each provider, with masked status, cancel, save, validation, and keyboard-friendly form behavior.
 - Uses DSH semantic theme tokens for light mode, dark mode, and contrast settings.
 - Host-side API key handling; the key is never returned in full or logged.
 - No DSH-internal runtime dependency; only the small general-purpose `yaml` package is used for profile configuration.
@@ -22,7 +22,11 @@ A DeepSeek Harness (DSH) plugin that adds Exa web search and a native-style **�
 ## Requirements
 
 - DeepSeek Harness with the `dsh web` interface.
-- An Exa API key for Exa search: [Exa Dashboard](https://dashboard.exa.ai/api-keys).
+- An API key for any third-party provider you want to use:
+  - [Exa](https://dashboard.exa.ai/api-keys)
+  - [Brave Search](https://api-dashboard.search.brave.com/app/keys)
+  - [Tavily](https://app.tavily.com/home)
+  - [Serper](https://serper.dev/api-key)
 
 ## Install
 
@@ -39,15 +43,15 @@ Restart `dsh web` after installing. Then refresh the browser page if needed.
 
 1. Open DSH **Settings**.
 2. Open **搜索服务 / Search Service**.
-3. Choose **Exa — 网页搜索**.
-4. Paste an Exa API key and choose **保存**.
+3. Choose **Exa**, **Brave Search**, **Tavily**, or **Serper**.
+4. Paste the selected provider's API key and choose **保存**.
 5. Ask DSH to search the web.
 
-To switch back, choose **DeepSeek — 官方搜索** and save. The setting takes effect immediately after saving.
+To switch back, choose **DeepSeek — 官方搜索** and save. The setting takes effect immediately after saving. Each provider uses its own official REST endpoint and result format is normalized by the plugin.
 
 ## Security and privacy
 
-The API key is stored in the local DSH profile configuration with restrictive local permissions and is sent only to Exa when an Exa search is performed. It is never included in repository files, logs, or the settings page response in full. Do not commit your local `cordis.patch.yml` or any file containing a real key.
+API keys are stored in the local DSH profile configuration with restrictive local permissions and are sent only to the selected provider when a search is performed. They are never included in repository files, logs, or the settings page response in full. Do not commit your local `cordis.patch.yml` or any file containing a real key.
 
 ## Development
 

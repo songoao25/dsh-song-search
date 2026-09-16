@@ -6,13 +6,13 @@
 [![Release](https://img.shields.io/github/v/release/SONGOAO25/dsh-song-search)](https://github.com/SONGOAO25/dsh-song-search/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/SONGOAO25/dsh-song-search/ci.yml)](https://github.com/SONGOAO25/dsh-song-search/actions)
 
-`dsh-song-search` 是 DeepSeek Harness（DSH）的联网搜索插件：接入 Exa，并提供原生风格的「搜索服务」设置页。
+`dsh-song-search` 是 DeepSeek Harness（DSH）的联网搜索插件：接入多个常用第三方服务，并提供原生风格的「搜索服务」设置页。
 
 ## 功能
 
-- 在 DSH 联网搜索中使用 Exa。
-- 在设置页手动选择 Exa 或 DeepSeek。
-- Exa API 钥匙使用安全输入框，支持显示/隐藏、取消更改、保存、校验和键盘操作。
+- 在 DSH 联网搜索中使用 Exa、Brave Search、Tavily 或 Serper。
+- 在设置页手动选择第三方服务或 DeepSeek。
+- 各服务商独立保存 API 钥匙；输入框支持显示/隐藏、取消更改、保存、校验和键盘操作。
 - 使用 DSH 自带的语义主题颜色，自动适配浅色、深色和高对比度模式。
 - 钥匙在主进程处理，不完整返回、不写入日志。
 
@@ -37,11 +37,16 @@ dsh plugin --profile web add .
 
 需要切回 DeepSeek 时，选择「DeepSeek — 官方搜索」并保存，马上生效。
 
-Exa API 钥匙可以在 [Exa Dashboard](https://dashboard.exa.ai/api-keys) 创建。
+API 钥匙可以在对应服务商的官方控制台创建：
+
+- [Exa](https://dashboard.exa.ai/api-keys)
+- [Brave Search](https://api-dashboard.search.brave.com/app/keys)
+- [Tavily](https://app.tavily.com/home)
+- [Serper](https://serper.dev/api-key)
 
 ## 安全说明
 
-API 钥匙只保存在本机 DSH 配置中，并且只会在 Exa 搜索时发送给 Exa。它不会进入仓库、日志，也不会通过设置页完整返回。请不要把包含真实钥匙的本机 `cordis.patch.yml` 提交到 GitHub。
+API 钥匙只保存在本机 DSH 配置中，并且只会在搜索时发送给当前选择的服务商。它不会进入仓库、日志，也不会通过设置页完整返回。请不要把包含真实钥匙的本机 `cordis.patch.yml` 提交到 GitHub。
 
 ## 开发与测试
 

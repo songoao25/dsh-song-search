@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [0.3.0] - 2026-09-16
+
+### Added
+
+- Added Brave Search, Tavily, and Serper（Google） providers alongside Exa and DeepSeek.
+- Added provider-specific API-key storage and settings links.
+- Added normalized result mapping and request-contract coverage for all new providers.
+
+### Changed
+
+- The search settings page now supports five choices while preserving the legacy Exa `apiKey` configuration.
+
 ## [0.2.1] - 2026-08-20
 
 ### Changed

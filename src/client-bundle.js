@@ -88,9 +88,19 @@ module.exports = {
       return React.createElement.apply(React, args);
     }
 
+    var PROVIDER_INFO = {
+      exa: { label: 'Exa', keyLabel: 'Exa API 钥匙', dashboard: 'https://dashboard.exa.ai/api-keys', placeholder: '粘贴 Exa API 钥匙' },
+      brave: { label: 'Brave Search', keyLabel: 'Brave Search API 钥匙', dashboard: 'https://api-dashboard.search.brave.com/app/keys', placeholder: '粘贴 Brave Search API 钥匙' },
+      tavily: { label: 'Tavily', keyLabel: 'Tavily API 钥匙', dashboard: 'https://app.tavily.com/home', placeholder: '粘贴 Tavily API 钥匙' },
+      serper: { label: 'Serper（Google）', keyLabel: 'Serper API 钥匙', dashboard: 'https://serper.dev/api-key', placeholder: '粘贴 Serper API 钥匙' },
+      'deepseek-official': { label: 'DeepSeek', keyLabel: '', dashboard: '', placeholder: '' },
+    };
+    var PROVIDER_ORDER = ['exa', 'brave', 'tavily', 'serper', 'deepseek-official'];
+    function providerInfo(id) { return PROVIDER_INFO[id] || PROVIDER_INFO['deepseek-official']; }
+
     function SearchServicePage() {
       var _status = React.useState(null), status = _status[0], setStatus = _status[1];
-      var _provider = React.useState('exa'), provider = _provider[0], setProvider = _provider[1];
+      var _provider = React.useState('deepseek-official'), provider = _provider[0], setProvider = _provider[1];
       var _apiKey = React.useState(''), apiKey = _apiKey[0], setApiKey = _apiKey[1];
       var _isKeyVisible = React.useState(false), isKeyVisible = _isKeyVisible[0], setIsKeyVisible = _isKeyVisible[1];
       var _isSaving = React.useState(false), isSaving = _isSaving[0], setIsSaving = _isSaving[1];
@@ -104,19 +114,21 @@ module.exports = {
           setApiKey('');
           setFieldError('');
         }).catch(function () {
-          setStatus({ ok: false, provider: 'exa', providerLabel: 'Exa', exaKeySet: false });
+          setStatus({ ok: false, provider: 'deepseek-official', providerLabel: 'DeepSeek', apiKeySet: false });
           setNotice({ kind: 'error', text: '无法读取搜索配置。请刷新页面后重试。' });
         });
       }, []);
 
       React.useEffect(function () { load(); }, [load]);
 
-      var savedProvider = status && status.provider ? status.provider : 'exa';
+      var savedProvider = status && status.provider ? status.provider : 'deepseek-official';
       var hasChanges = provider !== savedProvider || apiKey.trim().length > 0;
-      var isExaSelected = provider === 'exa';
-      var isExaReady = status && status.ok && status.provider === 'exa' && status.exaKeySet;
-      var statusTitle = isExaReady ? 'Exa 已准备好' : (savedProvider === 'deepseek-official' ? '已选择 DeepSeek' : '需要 Exa API 钥匙');
-      var statusDetail = isExaReady ? '搜索请求会使用 Exa。' : (savedProvider === 'deepseek-official' ? 'DeepSeek 的连接由 DSH 原有设置管理。' : '填写钥匙后即可开始搜索。');
+      var isThirdPartySelected = provider !== 'deepseek-official';
+      var selectedInfo = providerInfo(provider);
+      var savedInfo = providerInfo(savedProvider);
+      var isProviderReady = status && status.ok && status.provider === provider && status.apiKeySet;
+      var statusTitle = isProviderReady ? savedInfo.label + ' 已准备好' : (savedProvider === 'deepseek-official' ? '已选择 DeepSeek' : '需要 ' + savedInfo.label + ' API 钥匙');
+      var statusDetail = isProviderReady ? '搜索请求会使用 ' + savedInfo.label + '。' : (savedProvider === 'deepseek-official' ? 'DeepSeek 的连接由 DSH 原有设置管理。' : '填写钥匙后即可开始搜索。');
 
       function handleProviderChange(event) {
         setProvider(event.target.value);
@@ -142,11 +154,11 @@ module.exports = {
         event.preventDefault();
         if (!hasChanges || isSaving) return;
         var trimmedKey = apiKey.trim();
-        if (isExaSelected && trimmedKey.length === 0 && !(status && status.exaKeySet)) {
-          setFieldError('填写 Exa API 钥匙后才能使用 Exa 搜索。');
+        if (isThirdPartySelected && trimmedKey.length === 0 && !(status && status.provider === provider && status.apiKeySet)) {
+          setFieldError('填写 ' + selectedInfo.label + ' API 钥匙后才能使用该搜索服务。');
           return;
         }
-        if (isExaSelected && apiKey.length > 0 && trimmedKey.length < 8) {
+        if (isThirdPartySelected && apiKey.length > 0 && trimmedKey.length < 8) {
           setFieldError('检查钥匙是否完整，然后再保存。');
           return;
         }
@@ -154,14 +166,14 @@ module.exports = {
         setFieldError('');
         setNotice(null);
         var body = { provider: provider };
-        if (isExaSelected && trimmedKey.length > 0) body.apiKey = trimmedKey;
+        if (isThirdPartySelected && trimmedKey.length > 0) body.apiKey = trimmedKey;
         rpc('setSearchConfig', body).then(function (result) {
           if (!result.ok) {
             setNotice({ kind: 'error', text: '保存失败：' + (result.error || '请稍后重试。') });
             return;
           }
           setIsKeyVisible(false);
-          setNotice({ kind: 'saved', text: provider === 'exa' ? '已保存。Exa 搜索现在可用。' : '已保存。已切换到 DeepSeek 搜索。' });
+          setNotice({ kind: 'saved', text: provider === 'deepseek-official' ? '已保存。已切换到 DeepSeek 搜索。' : '已保存。' + selectedInfo.label + ' 搜索现在可用。' });
           return load();
         }).catch(function (error) {
           setNotice({ kind: 'error', text: '保存失败：' + error.message });
@@ -179,30 +191,29 @@ module.exports = {
         h('h2', { className: 'dshExaTitle' }, '搜索服务'),
         h('p', { className: 'dshExaIntro' }, '选择 DSH 联网搜索使用的服务。更改会在保存后立即生效。'),
         h('div', { className: 'dshExaStatus', role: 'status', 'aria-live': 'polite' },
-          h('span', { className: 'dshExaStatusDot' + (isExaReady ? ' dshExaStatusDotReady' : ''), 'aria-hidden': 'true' }),
+          h('span', { className: 'dshExaStatusDot' + (isProviderReady ? ' dshExaStatusDotReady' : ''), 'aria-hidden': 'true' }),
           h('div', null,
             h('div', { className: 'dshExaStatusText' }, statusTitle),
-            h('div', { className: 'dshExaStatusDetail' }, statusDetail + (isExaReady && status.exaKeyMasked ? ' 钥匙：' + status.exaKeyMasked + '。' : ''))
+            h('div', { className: 'dshExaStatusDetail' }, statusDetail + (isProviderReady && status.apiKeyMasked ? ' 钥匙：' + status.apiKeyMasked + '。' : ''))
           )
         ),
         h('form', { className: 'dshExaEditor', onSubmit: handleSubmit },
           h('div', { className: 'dshExaField' },
             h('label', { className: 'dshExaFieldLabel', htmlFor: 'dsh-exa-provider' }, '搜索服务'),
-            h('select', { id: 'dsh-exa-provider', className: 'dshExaInput dshExaSelect', value: provider, onChange: handleProviderChange, disabled: isSaving },
-              h('option', { value: 'exa' }, 'Exa — 网页搜索'),
-              h('option', { value: 'deepseek-official' }, 'DeepSeek — 官方搜索')
+            h('select', { id: 'dsh-search-provider', className: 'dshExaInput dshExaSelect', value: provider, onChange: handleProviderChange, disabled: isSaving },
+              PROVIDER_ORDER.map(function (id) { return h('option', { key: id, value: id }, providerInfo(id).label + (id === 'deepseek-official' ? ' — 官方搜索' : ' — 网页搜索')); })
             ),
-            h('p', { className: 'dshExaHint' }, 'Exa 适合新闻、技术资料和中文网页；DeepSeek 使用 DSH 已有的官方搜索设置。')
+            h('p', { className: 'dshExaHint' }, 'Exa、Brave、Tavily 和 Serper 都通过各自官方接口搜索；DeepSeek 使用 DSH 已有的官方搜索设置。')
           ),
-          isExaSelected ? h('div', { className: 'dshExaField' },
-            h('label', { className: 'dshExaFieldLabel', htmlFor: 'dsh-exa-api-key' }, 'Exa API 钥匙'),
+          isThirdPartySelected ? h('div', { className: 'dshExaField' },
+            h('label', { className: 'dshExaFieldLabel', htmlFor: 'dsh-search-api-key' }, selectedInfo.keyLabel),
             h('div', { className: 'dshExaKeyRow' },
               h('input', {
-                id: 'dsh-exa-api-key',
+                id: 'dsh-search-api-key',
                 className: 'dshExaInput',
                 type: isKeyVisible ? 'text' : 'password',
                 value: apiKey,
-                placeholder: status.exaKeySet ? '已配置；留空则不修改' : '粘贴 Exa API 钥匙',
+                placeholder: status.provider === provider && status.apiKeySet ? '已配置；留空则不修改' : selectedInfo.placeholder,
                 onChange: handleKeyChange,
                 disabled: isSaving,
                 autoComplete: 'off',
@@ -212,8 +223,8 @@ module.exports = {
               h('button', { type: 'button', className: 'dshExaRevealButton', onClick: function () { setIsKeyVisible(!isKeyVisible); }, disabled: isSaving, 'aria-pressed': isKeyVisible }, isKeyVisible ? '隐藏' : '显示')
             ),
             fieldError ? h('p', { id: 'dsh-exa-key-error', className: 'dshExaError', role: 'alert' }, fieldError) : null,
-            h('p', { id: 'dsh-exa-key-hint', className: 'dshExaHint' },
-              '在 ', h('a', { href: 'https://dashboard.exa.ai/api-keys', target: '_blank', rel: 'noreferrer' }, 'Exa Dashboard 创建 API 钥匙'), '。钥匙只保存在本机，并只发送到 Exa 官方接口。'
+            h('p', { id: 'dsh-search-key-hint', className: 'dshExaHint' },
+              '在 ', h('a', { href: selectedInfo.dashboard, target: '_blank', rel: 'noreferrer' }, selectedInfo.label + ' 控制台创建 API 钥匙'), '。钥匙只保存在本机，并只发送到所选服务商官方接口。'
             )
           ) : h('p', { className: 'dshExaHint' }, 'DeepSeek 的钥匙不在这里管理；切换后会使用 DSH 已配置的 DeepSeek 搜索。'),
           hasChanges ? h('p', { className: 'dshExaChanged', role: 'status' }, '有未保存的更改。') : null,
